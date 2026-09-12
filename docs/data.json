@@ -1,12 +1,12 @@
 {
- "price": 77192,
- "dma50": 70896,
+ "price": 77242,
+ "dma50": 70897,
  "dma200": 70092,
  "wma200": 65068,
- "rsi14": 46.0,
- "chg7d_pct": -3.3,
+ "rsi14": 46.2,
+ "chg7d_pct": -3.2,
  "chg30d_pct": 21.8,
- "price_vs_200dma_pct": 10.1,
+ "price_vs_200dma_pct": 10.2,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -139,16 +139,14 @@
   "etf": "missing",
   "defillama": "ok",
   "funding": "ok",
-  "fng": "ok",
-  "bitcoin_data": "ok"
+  "fng": "ok"
  },
  "errors": {
   "coinmetrics_batch": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceRealizedUSD%2CCapMVRVCur%2CSplyAct1yr%2CSplyCur%2CCapRealUSD%2CCapMrktCurUSD&frequency=1d&page_size=40&paging_from=end :: {\"error\":{\"type\":\"forbidden\",\"message\":\"Requested me",
   "coinmetrics": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapRealUSD%2CCapMrktCurUSD%2CSplyAct1yr%2CSplyCur&frequency=1d&page_size=40&paging_from=end",
   "etf_sosovalue": "405 Client Error: Method Not Allowed for url: https://api.sosovalue.xyz/openapi/v2/etf/historicalInflowChart?type=us-btc-spot",
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
-  "ibit": "BTC row not found in holdings CSV",
-  "bitcoin_data_lth-supply": "404 Client Error:  for url: https://bitcoin-data.com/v1/lth-supply/last"
+  "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-12T22:40+00:00"
+ "updated": "2026-09-12T23:26+00:00"
 }
