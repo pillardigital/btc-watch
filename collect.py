@@ -148,37 +148,99 @@ def technicals():
 # ---------------------------------------------------------------- on-chain (Coin Metrics community, no key)
 
 def coinmetrics():
+    """Realized price, MVRV, and 1y-dormant supply from Coin Metrics community (no key).
+    Prefers direct single metrics; batches them in one request; records the exact
+    server error (metric names and all) in ERRORS so failures are diagnosable."""
     keys = ["realized_price", "mvrv", "supply_untouched_1y_pct", "supply_untouched_1y_pct_30d_ago"]
+    wanted = ["PriceRealizedUSD", "CapMVRVCur", "SplyAct1yr", "SplyCur", "CapRealUSD", "CapMrktCurUSD"]
     try:
-        series = {}
-        for m in ("CapRealUSD", "SplyCur", "SplyAct1yr", "CapMrktCurUSD"):
+        try:
+            r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
+                    params={"assets": "btc", "metrics": ",".join(wanted), "frequency": "1d",
+                            "page_size": 40, "paging_from": "end"})
+            rows = r.json().get("data", [])
+        except requests.HTTPError as e:
+            # Community tier rejects the whole call if any metric is unsupported and names it.
+            body = ""
             try:
-                r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
-                        params={"assets": "btc", "metrics": m, "frequency": "1d",
-                                "page_size": 40, "paging_from": "end"})
-                series[m] = [float(x[m]) for x in r.json()["data"] if x.get(m) is not None]
-            except Exception as e:
-                fail("coinmetrics_" + m, e)
+                body = e.response.text[:400]
+            except Exception:
+                pass
+            fail("coinmetrics_batch", f"{e} :: {body}")
+            # Retry with only the widely-available core set.
+            r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
+                    params={"assets": "btc", "metrics": "CapRealUSD,CapMrktCurUSD,SplyAct1yr,SplyCur",
+                            "frequency": "1d", "page_size": 40, "paging_from": "end"})
+            rows = r.json().get("data", [])
+        if not rows:
+            raise ValueError("no rows")
+        def col(name):
+            vals = [float(x[name]) for x in rows if x.get(name) is not None]
+            return vals or None
+        last = rows[-1]
+        g = lambda k: float(last[k]) if last.get(k) is not None else None
         out = {}
-        if "CapRealUSD" in series and "SplyCur" in series:
-            out["realized_price"] = round(series["CapRealUSD"][-1] / series["SplyCur"][-1])
-        if "CapRealUSD" in series and "CapMrktCurUSD" in series:
-            out["mvrv"] = round(series["CapMrktCurUSD"][-1] / series["CapRealUSD"][-1], 2)
-        if "SplyAct1yr" in series and "SplyCur" in series:
-            a, c = series["SplyAct1yr"], series["SplyCur"]
-            out["supply_untouched_1y_pct"] = round((1 - a[-1] / c[-1]) * 100, 1)
-            i = max(0, len(a) - 31)
-            out["supply_untouched_1y_pct_30d_ago"] = round((1 - a[i] / c[i]) * 100, 1)
+        # realized price: direct metric first, else CapReal / supply
+        rp = g("PriceRealizedUSD")
+        if rp is None and g("CapRealUSD") and g("SplyCur"):
+            rp = g("CapRealUSD") / g("SplyCur")
+        if rp is not None:
+            out["realized_price"] = round(rp)
+        # mvrv: direct metric first, else market cap / realized cap
+        mv = g("CapMVRVCur")
+        if mv is None and g("CapMrktCurUSD") and g("CapRealUSD"):
+            mv = g("CapMrktCurUSD") / g("CapRealUSD")
+        if mv is not None:
+            out["mvrv"] = round(mv, 2)
+        # 1y-dormant supply, now and 30 days ago
+        act, cur = col("SplyAct1yr"), col("SplyCur")
+        if act and cur:
+            out["supply_untouched_1y_pct"] = round((1 - act[-1] / cur[-1]) * 100, 1)
+            i = max(0, len(act) - 31)
+            j = max(0, len(cur) - 31)
+            out["supply_untouched_1y_pct_30d_ago"] = round((1 - act[i] / cur[j]) * 100, 1)
         if not out:
-            raise ValueError("no metrics returned")
+            raise ValueError("no usable metrics")
         for k in keys:
-            if k not in out:
-                out[k] = PREV.get(k)
+            out.setdefault(k, PREV.get(k))
         STATUS["coinmetrics"] = "ok"
         return out
     except Exception as e:
         fail("coinmetrics", e)
         return {k: carry(k, None, "coinmetrics") for k in keys}
+
+
+# ---------------------------------------------------------------- on-chain fallback (bitcoin-data.com, no key)
+
+def bitcoin_data_fallback(cur):
+    """Fill realized_price / mvrv / long-term-holder share if Coin Metrics did not. Best effort."""
+    def last(path, *names):
+        j = get("https://bitcoin-data.com/v1/" + path + "/last").json()
+        for n in names:
+            if isinstance(j, dict) and n in j:
+                return float(j[n])
+        for v in (j.values() if isinstance(j, dict) else []):
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                continue
+        raise ValueError("no numeric field in " + path)
+    out = dict(cur)
+    for key, path, names in (
+        ("realized_price", "realized-price", ("realizedPrice", "realized_price", "value")),
+        ("mvrv", "mvrv", ("mvrv", "value")),
+        ("supply_untouched_1y_pct", "lth-supply", ("lthSupply", "lth_supply", "value")),
+    ):
+        if out.get(key) is None:
+            try:
+                v = last(path, *names)
+                if key == "supply_untouched_1y_pct" and v > 100:
+                    v = v / 19.9e6 * 100 if v > 1e6 else v
+                out[key] = round(v, 2 if key == "mvrv" else 1)
+                STATUS["bitcoin_data"] = "ok"
+            except Exception as e:
+                fail("bitcoin_data_" + path, e)
+    return out
 
 
 # ---------------------------------------------------------------- exchange reserves (CryptoQuant free key, optional)
@@ -206,23 +268,64 @@ def exchange_reserve():
 # ---------------------------------------------------------------- ETF flows (Farside table)
 
 def etf_flows():
+    """Spot BTC ETF net flow (US$m), streak, and latest date.
+    SoSoValue's open endpoint first (JSON, no key, not Cloudflare-blocked); Farside HTML last.
+    Values are US$ millions, positive = net inflow."""
     keys = ["etf_flow_last_musd", "etf_flow_7d_musd", "etf_streak", "etf_last_date"]
+
+    def finalize(vals):
+        # vals: list of (date_str, flow_musd) oldest..newest
+        last_date, last = vals[-1]
+        streak, sign = 0, (1 if last > 0 else -1)
+        for _, v in reversed(vals):
+            if (v > 0 and sign > 0) or (v < 0 and sign < 0):
+                streak += 1
+            else:
+                break
+        return {"etf_flow_last_musd": round(last, 1),
+                "etf_flow_7d_musd": round(sum(v for _, v in vals[-5:]), 1),
+                "etf_streak": streak * sign,
+                "etf_last_date": last_date}
+
+    # 1) SoSoValue open API
+    try:
+        r = get("https://api.sosovalue.xyz/openapi/v2/etf/historicalInflowChart",
+                params={"type": "us-btc-spot"},
+                headers={"Accept": "application/json"})
+        j = r.json()
+        data = j.get("data") or j.get("result") or []
+        vals = []
+        for row in data:
+            ts = row.get("date") or row.get("time") or row.get("timestamp")
+            flow = row.get("totalNetInflow", row.get("netInflow", row.get("value")))
+            if ts is None or flow is None:
+                continue
+            # timestamps may be ms epoch or ISO; flows may be raw USD
+            import datetime as _dt
+            if isinstance(ts, (int, float)) or (isinstance(ts, str) and ts.isdigit()):
+                ds = _dt.datetime.utcfromtimestamp(int(ts) / (1000 if int(ts) > 1e12 else 1)).date().isoformat()
+            else:
+                ds = str(ts)[:10]
+            fv = float(flow)
+            if abs(fv) > 1e6:      # raw USD -> millions
+                fv /= 1e6
+            vals.append((ds, fv))
+        if len(vals) >= 5:
+            out = finalize(vals)
+            STATUS["etf"] = "ok"
+            return out
+        raise ValueError("sosovalue returned too few rows")
+    except Exception as e:
+        fail("etf_sosovalue", e)
+
+    # 2) Farside HTML (often Cloudflare-blocked from CI, kept as last resort)
     try:
         import pandas as pd
         from io import StringIO
         hdr = {"Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9",
                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
-        html = None
-        for u in ("https://farside.co.uk/btc/", "https://farside.co.uk/bitcoin-etf-flow-all-data/"):
-            try:
-                html = get(u, headers=hdr).text
-                break
-            except Exception as e:
-                fail("farside_" + u.rstrip("/").split("/")[-1], e)
-        if html is None:
-            raise ValueError("both Farside pages unreachable")
-        tables = pd.read_html(StringIO(html))
-        t = max(tables, key=len)
+        html = get("https://farside.co.uk/btc/", headers=hdr).text
+        t = max(pd.read_html(StringIO(html)), key=len)
         t.columns = [str(c[-1]) if isinstance(c, tuple) else str(c) for c in t.columns]
         date_col = t.columns[0]
         total_col = [c for c in t.columns if "total" in c.lower()][-1]
@@ -238,22 +341,56 @@ def etf_flows():
                 vals.append((d, fv))
         if not vals:
             raise ValueError("no rows parsed")
-        last_date, last = vals[-1]
-        streak, sign = 0, (1 if last > 0 else -1)
-        for _, v in reversed(vals):
-            if (v > 0 and sign > 0) or (v < 0 and sign < 0):
-                streak += 1
-            else:
-                break
-        out = {"etf_flow_last_musd": round(last, 1),
-               "etf_flow_7d_musd": round(sum(v for _, v in vals[-5:]), 1),
-               "etf_streak": streak * sign,
-               "etf_last_date": last_date}
-        STATUS["farside"] = "ok"
+        out = finalize(vals)
+        STATUS["etf"] = "ok"
         return out
     except Exception as e:
-        fail("farside", e)
-        return {k: carry(k, None, "farside") for k in keys}
+        fail("etf_farside", e)
+        return {k: carry(k, None, "etf") for k in keys}
+
+
+# ---------------------------------------------------------------- ETF custody proxy (iShares IBIT holdings file, no key)
+
+IBIT_CSV = ("https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/"
+            "1467271812596.ajax?fileType=csv&fileName=IBIT_holdings&dataType=fund")
+
+
+def ibit_holdings():
+    """BTC held by IBIT, straight from BlackRock. Daily change x price is a flow measure that
+    does not depend on any third-party scraper. Keeps a 40-day history in data.json."""
+    hist = PREV.get("ibit_history", [])
+    try:
+        text = get(IBIT_CSV, headers={"Accept": "text/csv,*/*"}).text
+        btc = None
+        for line in text.splitlines():
+            cells = [c.strip().strip('"') for c in line.split(",")]
+            if any(c in ("BTC", "BITCOIN") for c in cells[:3]):
+                nums = []
+                for c in cells:
+                    try:
+                        nums.append(float(c.replace('"', "")))
+                    except ValueError:
+                        pass
+                nums = [n for n in nums if 100000 < n < 5000000]
+                if nums:
+                    btc = nums[0]
+                    break
+        if btc is None:
+            raise ValueError("BTC row not found in holdings CSV")
+        today = NOW.date().isoformat()
+        if not hist or hist[-1]["date"] != today:
+            hist.append({"date": today, "btc": round(btc)})
+        else:
+            hist[-1]["btc"] = round(btc)
+        hist = hist[-40:]
+        chg1 = round(hist[-1]["btc"] - hist[-2]["btc"]) if len(hist) >= 2 else None
+        chg7 = round(hist[-1]["btc"] - hist[max(0, len(hist) - 8)]["btc"]) if len(hist) >= 2 else None
+        STATUS["ibit"] = "ok"
+        return {"ibit_btc": round(btc), "ibit_chg1d_btc": chg1, "ibit_chg7d_btc": chg7, "ibit_history": hist}
+    except Exception as e:
+        fail("ibit", e)
+        return {"ibit_btc": PREV.get("ibit_btc"), "ibit_chg1d_btc": PREV.get("ibit_chg1d_btc"),
+                "ibit_chg7d_btc": PREV.get("ibit_chg7d_btc"), "ibit_history": hist}
 
 
 # ---------------------------------------------------------------- stablecoins (DefiLlama, no key)
@@ -375,7 +512,7 @@ def light_and_alerts(d, sei):
         "price below 200-day": dev is not None and dev <= s["price_vs_200dma_max_pct"],
         "funding flat or negative": f is not None and f <= s["funding_max"],
         "fear": fg is not None and fg <= s["fear_greed_max"],
-        "ETF outflow streak": streak <= -s["etf_outflow_streak_min"],
+        "ETF outflows streak": streak <= -s["etf_outflow_streak_min"],
     }
     hits = [k for k, v in conds.items() if v]
     if conds["thesis"] and len(hits) >= 4:
@@ -446,8 +583,9 @@ def dispatch(fired):
 
 def main():
     d = {}
-    for fn in (technicals, coinmetrics, exchange_reserve, etf_flows, stablecoins, funding, fear_greed):
+    for fn in (technicals, coinmetrics, exchange_reserve, etf_flows, ibit_holdings, stablecoins, funding, fear_greed):
         d.update(fn())
+    d.update(bitcoin_data_fallback(d))
 
     sei, pillars = sei_score()
     d["sei"] = sei
@@ -477,7 +615,7 @@ def main():
         json.dump(d, f, indent=1)
     with open(ALERTS_PATH, "w") as f:
         json.dump(ALERT_LOG[:100], f, indent=1)
-    print(json.dumps({k: v for k, v in d.items() if k not in ("sei_history", "events", "sei_pillars")}, indent=1))
+    print(json.dumps({k: v for k, v in d.items() if k not in ("sei_history", "events", "sei_pillars", "ibit_history")}, indent=1))
 
 
 if __name__ == "__main__":
