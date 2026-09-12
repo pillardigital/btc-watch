@@ -38,6 +38,7 @@ def load_json(path, default):
 PREV = load_json(DATA_PATH, {})
 ALERT_LOG = load_json(ALERTS_PATH, [])
 STATUS = {}  # source -> "ok" | "stale" | "missing"
+ERRORS = {}  # source -> last error text, for debugging from the dashboard
 
 
 def get(url, params=None, headers=None, timeout=25):
@@ -47,6 +48,11 @@ def get(url, params=None, headers=None, timeout=25):
     r = requests.get(url, params=params, headers=h, timeout=timeout)
     r.raise_for_status()
     return r
+
+
+def fail(source, e):
+    ERRORS[source] = str(e)[:300]
+    print(f"{source} failed:", e, file=sys.stderr)
 
 
 def carry(key, value, source):
@@ -62,11 +68,27 @@ def carry(key, value, source):
 # ---------------------------------------------------------------- price and technicals
 
 def fetch_price_history():
-    """Daily closes for the full history from CoinGecko (no key)."""
+    """Daily closes, full history. Coin Metrics community first (no key, no range cap),
+    CoinGecko public API second (capped to the last 365 days, so no 200-week average)."""
+    try:
+        r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
+                params={"assets": "btc", "metrics": "PriceUSD", "frequency": "1d",
+                        "page_size": 10000, "start_time": "2012-01-01"})
+        rows = [float(x["PriceUSD"]) for x in r.json()["data"] if x.get("PriceUSD")]
+        if len(rows) > 1500:
+            # append today's live price so the last point is current, not yesterday's close
+            try:
+                live = get("https://api.coingecko.com/api/v3/simple/price",
+                           params={"ids": "bitcoin", "vs_currencies": "usd"}).json()["bitcoin"]["usd"]
+                rows.append(float(live))
+            except Exception as e:
+                fail("coingecko_live", e)
+            return rows
+    except Exception as e:
+        fail("coinmetrics_price", e)
     r = get("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart",
-            params={"vs_currency": "usd", "days": "max", "interval": "daily"})
-    prices = [p[1] for p in r.json()["prices"]]
-    return prices
+            params={"vs_currency": "usd", "days": "365"})
+    return [p[1] for p in r.json()["prices"]]
 
 
 def rsi(closes, n=14):
@@ -87,12 +109,12 @@ def technicals():
     try:
         closes = fetch_price_history()
     except Exception as e:
-        print("price history failed:", e, file=sys.stderr)
+        fail("price", e)
         closes = None
     if not closes:
         keys = ["price", "dma50", "dma200", "wma200", "rsi14", "chg7d_pct", "chg30d_pct",
                 "price_vs_200dma_pct", "weeks_below_200wma"]
-        return {k: carry(k, None, "coingecko") for k in keys}
+        return {k: carry(k, None, "price") for k in keys}
 
     price = closes[-1]
     dma50 = statistics.mean(closes[-50:])
@@ -119,7 +141,7 @@ def technicals():
         "price_vs_200dma_pct": round((price / dma200 - 1) * 100, 1),
         "weeks_below_200wma": weeks_below,
     }
-    STATUS["coingecko"] = "ok"
+    STATUS["price"] = "ok"
     return out
 
 
@@ -128,24 +150,34 @@ def technicals():
 def coinmetrics():
     keys = ["realized_price", "mvrv", "supply_untouched_1y_pct", "supply_untouched_1y_pct_30d_ago"]
     try:
-        r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
-                params={"assets": "btc",
-                        "metrics": "CapRealUSD,SplyCur,SplyAct1yr,CapMrktCurUSD",
-                        "frequency": "1d", "page_size": 40, "paging_from": "end"})
-        rows = r.json()["data"]
-        last, ago = rows[-1], rows[max(0, len(rows) - 31)]
-        f = lambda d, k: float(d[k])
-        untouched = lambda d: (1 - f(d, "SplyAct1yr") / f(d, "SplyCur")) * 100
-        out = {
-            "realized_price": round(f(last, "CapRealUSD") / f(last, "SplyCur")),
-            "mvrv": round(f(last, "CapMrktCurUSD") / f(last, "CapRealUSD"), 2),
-            "supply_untouched_1y_pct": round(untouched(last), 1),
-            "supply_untouched_1y_pct_30d_ago": round(untouched(ago), 1),
-        }
+        series = {}
+        for m in ("CapRealUSD", "SplyCur", "SplyAct1yr", "CapMrktCurUSD"):
+            try:
+                r = get("https://community-api.coinmetrics.io/v4/timeseries/asset-metrics",
+                        params={"assets": "btc", "metrics": m, "frequency": "1d",
+                                "page_size": 40, "paging_from": "end"})
+                series[m] = [float(x[m]) for x in r.json()["data"] if x.get(m) is not None]
+            except Exception as e:
+                fail("coinmetrics_" + m, e)
+        out = {}
+        if "CapRealUSD" in series and "SplyCur" in series:
+            out["realized_price"] = round(series["CapRealUSD"][-1] / series["SplyCur"][-1])
+        if "CapRealUSD" in series and "CapMrktCurUSD" in series:
+            out["mvrv"] = round(series["CapMrktCurUSD"][-1] / series["CapRealUSD"][-1], 2)
+        if "SplyAct1yr" in series and "SplyCur" in series:
+            a, c = series["SplyAct1yr"], series["SplyCur"]
+            out["supply_untouched_1y_pct"] = round((1 - a[-1] / c[-1]) * 100, 1)
+            i = max(0, len(a) - 31)
+            out["supply_untouched_1y_pct_30d_ago"] = round((1 - a[i] / c[i]) * 100, 1)
+        if not out:
+            raise ValueError("no metrics returned")
+        for k in keys:
+            if k not in out:
+                out[k] = PREV.get(k)
         STATUS["coinmetrics"] = "ok"
         return out
     except Exception as e:
-        print("coinmetrics failed:", e, file=sys.stderr)
+        fail("coinmetrics", e)
         return {k: carry(k, None, "coinmetrics") for k in keys}
 
 
@@ -167,7 +199,7 @@ def exchange_reserve():
         STATUS["cryptoquant"] = "ok"
         return out
     except Exception as e:
-        print("cryptoquant failed:", e, file=sys.stderr)
+        fail("cryptoquant", e)
         return {k: carry(k, None, "cryptoquant") for k in keys}
 
 
@@ -178,7 +210,17 @@ def etf_flows():
     try:
         import pandas as pd
         from io import StringIO
-        html = get("https://farside.co.uk/btc/").text
+        hdr = {"Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9",
+               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
+        html = None
+        for u in ("https://farside.co.uk/btc/", "https://farside.co.uk/bitcoin-etf-flow-all-data/"):
+            try:
+                html = get(u, headers=hdr).text
+                break
+            except Exception as e:
+                fail("farside_" + u.rstrip("/").split("/")[-1], e)
+        if html is None:
+            raise ValueError("both Farside pages unreachable")
         tables = pd.read_html(StringIO(html))
         t = max(tables, key=len)
         t.columns = [str(c[-1]) if isinstance(c, tuple) else str(c) for c in t.columns]
@@ -210,7 +252,7 @@ def etf_flows():
         STATUS["farside"] = "ok"
         return out
     except Exception as e:
-        print("farside failed:", e, file=sys.stderr)
+        fail("farside", e)
         return {k: carry(k, None, "farside") for k in keys}
 
 
@@ -227,7 +269,7 @@ def stablecoins():
         STATUS["defillama"] = "ok"
         return out
     except Exception as e:
-        print("defillama failed:", e, file=sys.stderr)
+        fail("defillama", e)
         return {k: carry(k, None, "defillama") for k in keys}
 
 
@@ -235,21 +277,32 @@ def stablecoins():
 
 def funding():
     keys = ["funding_3d_avg_pct"]
-    for name, url, params, path in [
+    now_ms = int(NOW.timestamp() * 1000)
+    venues = [
+        # (name, url, params, extractor -> list of per-8h rates as fractions)
+        ("bitmex", "https://www.bitmex.com/api/v1/funding",
+         {"symbol": "XBTUSD", "count": 9, "reverse": "true"},
+         lambda j: [float(x["fundingRate"]) for x in j]),
+        ("okx", "https://www.okx.com/api/v5/public/funding-rate-history",
+         {"instId": "BTC-USDT-SWAP", "limit": 9},
+         lambda j: [float(x["fundingRate"]) for x in j["data"]]),
+        ("deribit", "https://www.deribit.com/api/v2/public/get_funding_rate_history",
+         {"instrument_name": "BTC-PERPETUAL", "start_timestamp": now_ms - 3 * 86400000, "end_timestamp": now_ms},
+         lambda j: [float(x["interest_8h"]) for x in j["result"]]),
         ("bybit", "https://api.bybit.com/v5/market/funding/history",
-         {"category": "linear", "symbol": "BTCUSDT", "limit": 9}, ("result", "list", "fundingRate")),
-        ("binance", "https://fapi.binance.com/fapi/v1/fundingRate",
-         {"symbol": "BTCUSDT", "limit": 9}, (None, None, "fundingRate")),
-    ]:
+         {"category": "linear", "symbol": "BTCUSDT", "limit": 9},
+         lambda j: [float(x["fundingRate"]) for x in j["result"]["list"]]),
+    ]
+    for name, url, params, extract in venues:
         try:
-            j = get(url, params=params).json()
-            rows = j[path[0]][path[1]] if path[0] else j
-            rates = [float(x[path[2]]) for x in rows]
-            out = {"funding_3d_avg_pct": round(statistics.mean(rates) * 100, 4)}
+            rates = extract(get(url, params=params).json())
+            if not rates:
+                raise ValueError("empty")
+            out = {"funding_3d_avg_pct": round(statistics.mean(rates) * 100, 4), "funding_venue": name}
             STATUS["funding"] = "ok"
             return out
         except Exception as e:
-            print(f"{name} funding failed:", e, file=sys.stderr)
+            fail("funding_" + name, e)
     return {k: carry(k, None, "funding") for k in keys}
 
 
@@ -263,7 +316,7 @@ def fear_greed():
         STATUS["fng"] = "ok"
         return out
     except Exception as e:
-        print("fng failed:", e, file=sys.stderr)
+        fail("fng", e)
         return {k: carry(k, None, "fng") for k in keys}
 
 
@@ -365,13 +418,13 @@ def send(text):
             requests.post(f"https://api.telegram.org/bot{tok}/sendMessage",
                           json={"chat_id": chat, "text": text}, timeout=15)
         except Exception as e:
-            print("telegram failed:", e, file=sys.stderr)
+            fail("telegram", e)
     topic = os.getenv("NTFY_TOPIC")
     if topic:
         try:
             requests.post(f"https://ntfy.sh/{topic}", data=text.encode(), timeout=15)
         except Exception as e:
-            print("ntfy failed:", e, file=sys.stderr)
+            fail("ntfy", e)
 
 
 def dispatch(fired):
@@ -416,6 +469,7 @@ def main():
 
     d["alerts_sent"] = dispatch(fired)
     d["sources"] = STATUS
+    d["errors"] = ERRORS
     d["updated"] = NOW.isoformat(timespec="minutes")
 
     os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
