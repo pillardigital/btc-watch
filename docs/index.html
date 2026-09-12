@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BTC watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16191D; --slate:#5B6470; --mute:#9AA3AD; --rule:#E3E6EA; --paper:#FFFFFF;
+    --green:#1F8A4C; --amber:#C77800; --red:#B93A2E; --grey:#7C8590;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:17px;line-height:1.45}
+  body{margin:0}
+  main{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:17px;font-weight:500;margin:0 0 6px;color:var(--slate)}
+  .updated{font-size:14px;color:var(--mute);margin:0 0 28px}
+
+  /* The one loud element: the opportunity band */
+  .band{border-left:6px solid var(--grey);padding:18px 22px;margin-bottom:44px;background:#FAFBFC}
+  .band.green{border-color:var(--green)} .band.amber{border-color:var(--amber)} .band.red{border-color:var(--red)}
+  .band .word{font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:1.1;margin:0 0 6px}
+  .band.green .word{color:var(--green)} .band.amber .word{color:var(--amber)} .band.red .word{color:var(--red)} .band.grey .word{color:var(--grey)}
+  .band p{margin:0;color:var(--slate)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  section{padding:22px 0 26px;border-top:1px solid var(--rule)}
+  section h2{font-size:15px;font-weight:500;color:var(--slate);margin:0 0 14px}
+  .num{font-size:30px;font-weight:600;letter-spacing:-.01em;line-height:1.15;margin:0}
+  .num small{font-size:15px;font-weight:500;color:var(--slate);margin-left:8px}
+  .cap{margin:4px 0 16px;color:var(--slate);font-size:15px}
+  .cap:last-child{margin-bottom:0}
+  .up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--mute)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:1px;background:var(--mute)}
+  .dot.up{background:var(--green)} .dot.down{background:var(--red)}
+
+  .rail{position:relative;height:38px;margin:10px 0 6px;border-top:2px solid var(--rule)}
+  .rail .tick{position:absolute;top:-2px;transform:translateX(-50%);font-size:13px;color:var(--slate);white-space:nowrap}
+  .rail .tick::before{content:"";display:block;width:2px;height:10px;background:var(--mute);margin:0 auto 2px}
+  .rail .tick.me{color:var(--ink);font-weight:600}
+  .rail .tick.me::before{background:var(--ink);height:14px}
+
+  .bar{height:6px;background:var(--rule);border-radius:3px;overflow:hidden;margin:6px 0 4px}
+  .bar i{display:block;height:100%;background:var(--ink)}
+  .pillar{display:flex;justify-content:space-between;font-size:14px;color:var(--slate);margin:6px 0}
+  .pillar b{font-weight:500;color:var(--ink)}
+
+  .feed{border-top:1px solid var(--rule);padding-top:22px;margin-top:8px}
+  .feed h2{font-size:15px;font-weight:500;color:var(--slate);margin:0 0 12px}
+  .feed li{list-style:none;margin:0 0 10px;font-size:15px}
+  .feed ul{padding:0;margin:0}
+  .feed time{color:var(--mute);margin-right:10px;font-variant-numeric:tabular-nums}
+  .foot{margin-top:36px;font-size:13px;color:var(--mute)}
+  .foot span{margin-right:14px}
+  a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+  <h1>BTC watch</h1>
+  <p class="updated" id="updated">Loading the latest refresh…</p>
+
+  <div class="band grey" id="band">
+    <p class="word" id="light-word">Watching</p>
+    <p id="light-reason"></p>
+  </div>
+
+  <div class="grid">
+    <section id="sink">
+      <h2>Coins leaving the market</h2>
+      <p class="num" id="reserve-chg">–</p>
+      <p class="cap" id="reserve-cap"></p>
+      <p class="num" id="untouched">–</p>
+      <p class="cap" id="untouched-cap"></p>
+    </section>
+
+    <section id="bid">
+      <h2>Institutional bid</h2>
+      <p class="num" id="etf7">–</p>
+      <p class="cap" id="etf7-cap"></p>
+      <p class="num" id="streak">–</p>
+      <p class="cap" id="streak-cap"></p>
+      <p class="cap" id="stable-cap"></p>
+    </section>
+
+    <section id="where">
+      <h2>Where we are</h2>
+      <p class="num" id="regime">–</p>
+      <p class="cap" id="price-cap"></p>
+      <div class="rail" id="rail"></div>
+      <p class="cap" id="rail-cap"></p>
+    </section>
+
+    <section id="thesis">
+      <h2>Is the thesis getting stronger?</h2>
+      <p class="num" id="sei">–<small>of 100</small></p>
+      <p class="cap" id="sei-cap"></p>
+      <div id="pillars"></div>
+    </section>
+  </div>
+
+  <div class="feed">
+    <h2>What changed</h2>
+    <ul id="events"></ul>
+  </div>
+
+  <div class="feed">
+    <h2>Recent alerts</h2>
+    <ul id="alerts"><li class="cap">None yet.</li></ul>
+  </div>
+
+  <p class="foot" id="sources"></p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => n == null ? "–" : Math.round(n).toLocaleString();
+const money = n => n == null ? "–" : "$" + Math.round(n).toLocaleString();
+const sign = n => n > 0 ? "+" : "";
+const cls = n => n == null ? "flat" : n > 0 ? "up" : n < 0 ? "down" : "flat";
+
+async function load(){
+  const bust = "?t=" + Math.floor(Date.now()/60000);
+  const d = await (await fetch("data.json"+bust)).json();
+  let alerts = [];
+  try { alerts = await (await fetch("alerts.json"+bust)).json(); } catch(e){}
+
+  const when = new Date(d.updated);
+  $("updated").textContent = "Refreshed " + when.toLocaleString(undefined,{weekday:"short",hour:"numeric",minute:"2-digit"}) +
+    ". Price " + money(d.price) + (d.chg7d_pct!=null ? " (" + sign(d.chg7d_pct) + d.chg7d_pct + "% this week)" : "") + ".";
+
+  // Opportunity band
+  const words = {green:"Opportunity", amber:"Careful", red:"Stop", grey:"Nothing to do"};
+  $("band").className = "band " + d.light;
+  $("light-word").textContent = words[d.light] || "Watching";
+  $("light-reason").textContent = d.light_reason || "";
+
+  // Coins leaving the market
+  if (d.exchange_reserve_chg30d_btc != null){
+    const out = -d.exchange_reserve_chg30d_btc;
+    $("reserve-chg").innerHTML = `<span class="${cls(out)}">${sign(out)}${fmt(out)}</span><small>BTC off exchanges, 30 days</small>`;
+    const mult = d.issuance_btc_per_day ? (out / (30*d.issuance_btc_per_day)).toFixed(1) : null;
+    $("reserve-cap").textContent = out > 0
+      ? `Coins are moving into storage faster than they are being mined (about ${mult}x new issuance). Exchange balance ${fmt(d.exchange_reserve_btc)} BTC.`
+      : out < 0 ? `Coins are moving onto exchanges. Exchange balance ${fmt(d.exchange_reserve_btc)} BTC.`
+      : "Flat.";
+  } else {
+    $("reserve-chg").innerHTML = `<span class="flat">–</span><small>BTC off exchanges</small>`;
+    $("reserve-cap").textContent = "Add a free CryptoQuant API key as the CRYPTOQUANT_API_KEY secret to turn this on.";
+  }
+  if (d.supply_untouched_1y_pct != null){
+    const dlt = d.supply_untouched_1y_pct_30d_ago != null ? (d.supply_untouched_1y_pct - d.supply_untouched_1y_pct_30d_ago) : null;
+    $("untouched").innerHTML = `${d.supply_untouched_1y_pct}%<small>untouched for a year or more</small>`;
+    $("untouched-cap").innerHTML = dlt == null ? "" :
+      `<span class="${cls(dlt)}">${sign(dlt)}${dlt.toFixed(1)} pts</span> in 30 days. ` +
+      (dlt > 0 ? "Long-term hands are growing." : dlt < 0 ? "Old coins are moving; watch whether they are selling or re-custodying." : "Steady.");
+  }
+
+  // Institutional bid
+  if (d.etf_flow_7d_musd != null){
+    const v = d.etf_flow_7d_musd;
+    $("etf7").innerHTML = `<span class="${cls(v)}">${sign(v)}$${Math.abs(v)>=1000 ? (v/1000).toFixed(2)+"B" : Math.round(v)+"M"}</span><small>ETF net flow, last 5 sessions</small>`;
+    $("etf7-cap").textContent = `Latest session ${sign(d.etf_flow_last_musd)}$${Math.round(Math.abs(d.etf_flow_last_musd))}M (${d.etf_last_date}).`;
+    const s = d.etf_streak || 0;
+    $("streak").innerHTML = `<span class="${cls(s)}">${Math.abs(s)} day${Math.abs(s)==1?"":"s"}</span><small>${s>0?"of inflows":s<0?"of outflows":"streak"}</small>`;
+    $("streak-cap").textContent = d.etf_note || (Math.abs(s) >= 8 ? "Long streaks tend to mark exhaustion, in either direction." : "");
+  } else {
+    $("etf7").innerHTML = `<span class="flat">–</span><small>ETF net flow</small>`;
+    $("etf7-cap").textContent = "ETF flow source did not respond this run.";
+  }
+  if (d.stable_chg30d_pct != null){
+    $("stable-cap").innerHTML = `<span class="dot ${cls(d.stable_chg30d_pct)}"></span>Stablecoin supply ${sign(d.stable_chg30d_pct)}${d.stable_chg30d_pct}% in 30 days ($${d.stable_supply_busd}B). ` +
+      (d.stable_chg30d_pct > 1 ? "Dry powder is arriving." : d.stable_chg30d_pct < -1 ? "Money is leaving the rails." : "Neutral.");
+  }
+
+  // Where we are
+  $("regime").textContent = d.regime || "–";
+  const explain = {
+    "Deep value":"Price is below what the average holder paid. Historically the best long-term entries.",
+    "Contraction":"Below the 200-day average with money leaving. Patience; look for the flush.",
+    "Accumulation":"Below the 200-day average but flows have turned. Building phase.",
+    "Expansion":"Above the 200-day average with support underneath. Trend intact.",
+    "Euphoria":"Stretched on every gauge. Trim into strength."
+  };
+  $("price-cap").textContent = explain[d.regime] || "";
+  const levels = [["200-wk", d.wma200], ["avg cost", d.realized_price], ["200-day", d.dma200], ["now", d.price]].filter(x => x[1] != null);
+  if (levels.length){
+    const vals = levels.map(x=>x[1]); const lo = Math.min(...vals)*0.94, hi = Math.max(...vals)*1.06;
+    $("rail").innerHTML = levels.map(([n,v]) => `<span class="tick ${n==="now"?"me":""}" style="left:${((v-lo)/(hi-lo)*100).toFixed(1)}%">${n}<br>${money(v)}</span>`).join("");
+    $("rail-cap").textContent = d.weeks_below_200wma > 0
+      ? `${d.weeks_below_200wma} weekly close${d.weeks_below_200wma>1?"s":""} below the 200-week average. Two in a row is the kill switch.`
+      : "Above the 200-week average. Structural floor is holding.";
+  }
+
+  // Thesis
+  $("sei").innerHTML = `${d.sei}<small>of 100</small>`;
+  const h = d.sei_history || [];
+  const back = h.length > 90 ? h[h.length-91].sei : (h[0]||{}).sei;
+  const slope = back != null ? d.sei - back : 0;
+  $("sei-cap").innerHTML = `<span class="${cls(slope)}">${sign(slope)}${slope}</span> over the last three months. ` +
+    (d.sei >= 60 ? "Bitcoin is getting more wired into the financial system, not less." : d.sei >= 45 ? "Progress, with a few big doors still closed." : "Too many doors closed; treat as tactical only.");
+  $("pillars").innerHTML = (d.sei_pillars||[]).map(p =>
+    `<div class="pillar"><span>${p.label}</span><b>${p.score}</b></div><div class="bar"><i style="width:${p.score}%"></i></div>`).join("");
+
+  // Feeds
+  $("events").innerHTML = (d.events||[]).map(e => `<li><time>${e.date}</time>${e.note}</li>`).join("") || "<li class='cap'>No events logged.</li>";
+  if (alerts.length) $("alerts").innerHTML = alerts.slice(0,5).map(a => `<li><time>${a.ts.slice(0,10)}</time>${a.text}</li>`).join("");
+
+  // Sources
+  const st = d.sources || {};
+  $("sources").innerHTML = Object.entries(st).map(([k,v]) => `<span>${k}: ${v}</span>`).join("") +
+    `<span><a href="alerts.json">alert log</a></span><span><a href="data.json">raw data</a></span>`;
+}
+load().catch(e => { $("updated").textContent = "Could not load data.json yet. Run the workflow once from the Actions tab."; });
+</script>
+</body>
+</html>
