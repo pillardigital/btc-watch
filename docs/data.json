@@ -1,0 +1,140 @@
+{
+ "price": null,
+ "dma50": null,
+ "dma200": null,
+ "wma200": null,
+ "rsi14": null,
+ "chg7d_pct": null,
+ "chg30d_pct": null,
+ "price_vs_200dma_pct": null,
+ "weeks_below_200wma": null,
+ "realized_price": null,
+ "mvrv": null,
+ "supply_untouched_1y_pct": null,
+ "supply_untouched_1y_pct_30d_ago": null,
+ "exchange_reserve_btc": null,
+ "exchange_reserve_chg30d_btc": null,
+ "etf_flow_last_musd": null,
+ "etf_flow_7d_musd": null,
+ "etf_streak": null,
+ "etf_last_date": null,
+ "stable_supply_busd": 310.2,
+ "stable_chg30d_pct": 1.32,
+ "funding_3d_avg_pct": null,
+ "fear_greed": 63,
+ "sei": 59,
+ "sei_pillars": [
+  {
+   "id": "plumbing",
+   "label": "Rules and accounting",
+   "score": 63,
+   "weight": 20
+  },
+  {
+   "id": "distribution",
+   "label": "Who is allowed to sell it",
+   "score": 52,
+   "weight": 20
+  },
+  {
+   "id": "benchmarks",
+   "label": "Index and benchmark inclusion",
+   "score": 44,
+   "weight": 10
+  },
+  {
+   "id": "supply_sink",
+   "label": "Coins leaving the market",
+   "score": 58,
+   "weight": 15
+  },
+  {
+   "id": "collateral",
+   "label": "Borrowing against it",
+   "score": 67,
+   "weight": 10
+  },
+  {
+   "id": "treasuries",
+   "label": "Corporate and sovereign treasuries",
+   "score": 50,
+   "weight": 10
+  },
+  {
+   "id": "network",
+   "label": "Network health",
+   "score": 78,
+   "weight": 10
+  },
+  {
+   "id": "culture",
+   "label": "Everyday embedding",
+   "score": 67,
+   "weight": 5
+  }
+ ],
+ "sei_history": [
+  {
+   "date": "2026-09-12",
+   "sei": 59
+  }
+ ],
+ "regime": "Unknown",
+ "light": "grey",
+ "light_reason": "Nothing to do. Watching.",
+ "events": [
+  {
+   "date": "2026-09-12",
+   "pillar": "supply_sink",
+   "note": "Baseline set. Refresh maturity scores after a current-state review."
+  },
+  {
+   "date": "2026-06-07",
+   "pillar": "supply_sink",
+   "note": "Sweep to $59,100 below the 200-week average was bought back within a day."
+  },
+  {
+   "date": "2025-07-18",
+   "pillar": "plumbing",
+   "note": "GENIUS Act signed; federal stablecoin framework in place."
+  },
+  {
+   "date": "2025-06-25",
+   "pillar": "plumbing",
+   "note": "FHFA told Fannie and Freddie to consider crypto holdings in mortgage underwriting."
+  },
+  {
+   "date": "2025-05-28",
+   "pillar": "plumbing",
+   "note": "DOL withdrew its 2022 caution on crypto in 401(k) plans."
+  },
+  {
+   "date": "2025-03-06",
+   "pillar": "plumbing",
+   "note": "Executive order created the US Strategic Bitcoin Reserve from seized coins."
+  },
+  {
+   "date": "2025-01-23",
+   "pillar": "plumbing",
+   "note": "SEC rescinded SAB 121; banks can custody without grossing up the balance sheet."
+  },
+  {
+   "date": "2025-01-01",
+   "pillar": "plumbing",
+   "note": "FASB fair-value accounting for crypto took effect."
+  }
+ ],
+ "issuance_btc_per_day": 450,
+ "etf_note": "",
+ "alerts_sent": [],
+ "sources": {
+  "coingecko": "missing",
+  "coinmetrics": "missing",
+  "cryptoquant": "missing",
+  "farside": "missing",
+  "defillama": "ok",
+  "funding": "missing",
+  "fng": "ok"
+ },
+ "updated": "2026-09-12T21:15+00:00"
+}
