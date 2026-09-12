@@ -1,0 +1,96 @@
+# Structural Embedding Index inputs.
+# This is the only file you edit by hand. When something happens (a bank launches custody,
+# a platform unlocks advisors, Basel softens), change the maturity score and add a line to events.
+#
+# maturity: 0 = hostile, 1 = uncertain, 2 = permitted, 3 = normalized / expected
+# The score is the weighted average of pillars, scaled to 0-100.
+
+pillars:
+  plumbing:
+    label: Rules and accounting
+    weight: 20
+    items:
+      fasb_fair_value:        {label: Fair-value accounting (FASB), maturity: 3}
+      sab121_rescinded:       {label: Bank custody allowed (SAB 122), maturity: 3}
+      basel_group2:           {label: Basel bank capital treatment, maturity: 1}
+      stablecoin_law:         {label: Stablecoin law (GENIUS), maturity: 3}
+      market_structure_law:   {label: Market structure law, maturity: 1}
+      strategic_reserve:      {label: US strategic reserve acquiring, maturity: 1}
+      retirement_access:      {label: 401(k) menu access, maturity: 2}
+      mortgage_reserves:      {label: Crypto counted in mortgage underwriting, maturity: 2}
+      insurance_capital:      {label: Insurer statutory capital treatment, maturity: 1}
+
+  distribution:
+    label: Who is allowed to sell it
+    weight: 20
+    items:
+      morgan_stanley:  {label: Morgan Stanley advisors, maturity: 2}
+      merrill:         {label: Merrill / BofA advisors, maturity: 1}
+      wells:           {label: Wells Fargo advisors, maturity: 1}
+      ubs:             {label: UBS advisors, maturity: 1}
+      vanguard:        {label: Vanguard platform, maturity: 2}
+      schwab:          {label: Schwab spot trading, maturity: 2}
+      lpl_edwardjones: {label: LPL and Edward Jones, maturity: 1}
+      model_portfolios: {label: Model portfolio inclusion (BlackRock etc), maturity: 2}
+      bank_private_wealth: {label: JPM / Goldman / Citi private wealth, maturity: 2}
+
+  benchmarks:
+    label: Index and benchmark inclusion
+    weight: 10
+    items:
+      mstr_sp500:      {label: Strategy in S&P 500, maturity: 1}
+      msci_dat_policy: {label: MSCI treatment of treasury companies, maturity: 1}
+      allocator_models: {label: Major allocators publishing nonzero BTC weight, maturity: 2}
+
+  supply_sink:
+    label: Coins leaving the market
+    weight: 15
+    items:
+      etf_share:       {label: ETF share of supply growing, maturity: 2}
+      treasuries:      {label: Corporate treasuries net buying, maturity: 2}
+      sovereign_hold:  {label: Governments holding rather than selling, maturity: 2}
+      mtgox_cleared:   {label: Mt. Gox overhang cleared, maturity: 1}
+
+  collateral:
+    label: Borrowing against it
+    weight: 10
+    items:
+      bank_lending:    {label: Bank loans against BTC or ETF shares, maturity: 2}
+      prime_margin:    {label: Prime brokers accept ETF shares as margin, maturity: 2}
+      cme_margin:      {label: CME margins normalizing, maturity: 2}
+
+  treasuries:
+    label: Corporate and sovereign treasuries
+    weight: 10
+    items:
+      mstr_flywheel:   {label: Strategy premium to NAV healthy, maturity: 2}
+      dat_sector:      {label: Treasury-company sector above NAV, maturity: 1}
+      sovereign_buys:  {label: Any G20 sovereign buying openly, maturity: 1}
+      state_reserves:  {label: US states enacting reserves, maturity: 2}
+
+  network:
+    label: Network health
+    weight: 10
+    items:
+      hashrate_trend:  {label: Hashrate at or near highs, maturity: 3}
+      quantum_plan:    {label: Post-quantum migration plan, maturity: 1}
+      governance_calm: {label: No contentious fork risk, maturity: 3}
+
+  culture:
+    label: Everyday embedding
+    weight: 5
+    items:
+      bank_jobs:       {label: Banks hiring for digital assets, maturity: 2}
+      policy_support:  {label: Political support stable, maturity: 2}
+
+# Dated events. Newest first. These show on the dashboard feed and mark the score history.
+# Keep each line to one plain sentence.
+events:
+  - {date: 2026-09-12, pillar: supply_sink, note: "Baseline set. Refresh maturity scores after a current-state review."}
+  - {date: 2026-06-07, pillar: supply_sink, note: "Sweep to $59,100 below the 200-week average was bought back within a day."}
+  - {date: 2025-07-18, pillar: plumbing, note: "GENIUS Act signed; federal stablecoin framework in place."}
+  - {date: 2025-06-25, pillar: plumbing, note: "FHFA told Fannie and Freddie to consider crypto holdings in mortgage underwriting."}
+  - {date: 2025-05-28, pillar: plumbing, note: "DOL withdrew its 2022 caution on crypto in 401(k) plans."}
+  - {date: 2025-03-06, pillar: plumbing, note: "Executive order created the US Strategic Bitcoin Reserve from seized coins."}
+  - {date: 2025-01-23, pillar: plumbing, note: "SEC rescinded SAB 121; banks can custody without grossing up the balance sheet."}
+  - {date: 2025-01-01, pillar: plumbing, note: "FASB fair-value accounting for crypto took effect."}
