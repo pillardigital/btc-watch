@@ -1,11 +1,11 @@
 {
- "price": 77215,
- "dma50": 70896,
+ "price": 77247,
+ "dma50": 70897,
  "dma200": 70092,
  "wma200": 65068,
- "rsi14": 46.1,
- "chg7d_pct": -3.3,
- "chg30d_pct": 21.8,
+ "rsi14": 46.2,
+ "chg7d_pct": -3.2,
+ "chg30d_pct": 21.9,
  "price_vs_200dma_pct": 10.2,
  "weeks_below_200wma": 0,
  "realized_price": null,
@@ -145,5 +145,5 @@
   "farside_bitcoin-etf-flow-all-data": "403 Client Error: Forbidden for url: https://farside.co.uk/bitcoin-etf-flow-all-data/",
   "farside": "both Farside pages unreachable"
  },
- "updated": "2026-09-12T21:36+00:00"
+ "updated": "2026-09-12T22:15+00:00"
 }
