@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BTC Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBFAF7; --card:#FFFFFF; --ink:#1A1C1E; --body:#4A4F55; --soft:#8A9099;
+    --line:#ECE9E2; --line2:#F4F2EC;
+    --green:#137A47; --green-bg:#EAF3EC; --amber:#B5730B; --amber-bg:#FBF1DF;
+    --red:#B23A2E; --red-bg:#F8EAE7; --slate:#6B7280; --slate-bg:#F1F1EE;
+    --accent:#C8622D;
+    --shadow:0 1px 2px rgba(26,28,30,.04), 0 8px 24px rgba(26,28,30,.05);
+    --shadow-lg:0 2px 4px rgba(26,28,30,.05), 0 16px 40px rgba(26,28,30,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.55; letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:680px; margin:0 auto; padding:32px 20px 96px}
+  @media(min-width:720px){ .wrap{padding:56px 24px 120px} }
+
+  /* Masthead */
+  .mast{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:8px}
+  .mast h1{
+    font-family:"Fraunces",serif; font-weight:500; font-size:22px;
+    letter-spacing:-.02em; display:flex; align-items:center; gap:9px;
+  }
+  .mast h1 .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); flex:none}
+  .stamp{font-size:12.5px; color:var(--soft); text-align:right; line-height:1.4; font-variant-numeric:tabular-nums}
+  .price-now{font-size:13px; color:var(--body); font-variant-numeric:tabular-nums; margin-bottom:36px}
+  .price-now b{color:var(--ink); font-weight:600}
+  .price-now .chg-up{color:var(--green); font-weight:600}
+  .price-now .chg-down{color:var(--red); font-weight:600}
+
+  /* Section label */
+  .sec-label{
+    display:flex; align-items:center; gap:10px; margin:0 2px 14px;
+    font-size:11.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  }
+  .sec-label::after{content:""; flex:1; height:1px; background:var(--line)}
+  .sec-label .n{
+    width:19px; height:19px; border-radius:50%; background:var(--ink); color:#fff;
+    display:grid; place-items:center; font-size:11px; letter-spacing:0; flex:none;
+  }
+  section{margin-bottom:44px}
+
+  /* ACT NOW hero */
+  .verdict{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:26px 24px; box-shadow:var(--shadow-lg); position:relative; overflow:hidden;
+  }
+  .verdict::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--slate)}
+  .verdict.green::before{background:var(--green)} .verdict.amber::before{background:var(--amber)}
+  .verdict.red::before{background:var(--red)} .verdict.grey::before{background:var(--slate)}
+  .verdict .tag{
+    display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600;
+    letter-spacing:.06em; text-transform:uppercase; padding:5px 11px; border-radius:999px; margin-bottom:15px;
+    background:var(--slate-bg); color:var(--slate);
+  }
+  .verdict.green .tag{background:var(--green-bg); color:var(--green)}
+  .verdict.amber .tag{background:var(--amber-bg); color:var(--amber)}
+  .verdict.red .tag{background:var(--red-bg); color:var(--red)}
+  .verdict .tag .pulse{width:7px; height:7px; border-radius:50%; background:currentColor}
+  .verdict h2{
+    font-family:"Fraunces",serif; font-weight:500; font-size:29px; line-height:1.15;
+    letter-spacing:-.02em; color:var(--ink); margin-bottom:9px;
+  }
+  @media(min-width:720px){ .verdict h2{font-size:34px} }
+  .verdict p{font-size:15px; color:var(--body); line-height:1.5}
+
+  /* Metric row */
+  .rows{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
+  .row{border-top:1px solid var(--line2)}
+  .row:first-child{border-top:none}
+  .row-head{
+    display:flex; align-items:center; gap:14px; padding:16px 18px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; user-select:none; transition:background .15s;
+  }
+  .row-head:hover{background:var(--line2)}
+  .row-main{flex:1; min-width:0}
+  .row-title{font-size:12.5px; font-weight:600; color:var(--soft); letter-spacing:.02em; margin-bottom:2px}
+  .row-hint{font-size:13.5px; color:var(--body); line-height:1.4}
+  .row-val{
+    font-family:"Fraunces",serif; font-size:22px; font-weight:500; letter-spacing:-.01em;
+    color:var(--ink); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; flex:none;
+  }
+  .row-val .u{display:block; font-family:"Inter"; font-size:11px; font-weight:500; color:var(--soft); letter-spacing:0; margin-top:1px}
+  .row-val.up{color:var(--green)} .row-val.down{color:var(--red)}
+  .chev{flex:none; width:16px; height:16px; color:var(--soft); transition:transform .2s; margin-left:-4px}
+  .row.open .chev{transform:rotate(90deg)}
+  .row-body{
+    max-height:0; overflow:hidden; transition:max-height .28s ease;
+    font-size:13.5px; color:var(--body); line-height:1.55;
+  }
+  .row-body .inner{padding:0 18px 17px 18px}
+  .row-body .inner .lead{color:var(--ink); font-weight:500; margin-bottom:5px}
+  .metricbar{height:5px; border-radius:3px; background:var(--line); margin-top:11px; overflow:hidden}
+  .metricbar i{display:block; height:100%; border-radius:3px; background:var(--ink)}
+
+  /* Thesis pillars */
+  .pillars{margin-top:12px; display:grid; gap:9px}
+  .pillar{display:grid; grid-template-columns:1fr auto; gap:2px 10px; align-items:center; font-size:12.5px}
+  .pillar .pl{color:var(--body)}
+  .pillar .pv{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+  .pillar .pb{grid-column:1/-1; height:4px; border-radius:2px; background:var(--line2); overflow:hidden}
+  .pillar .pb i{display:block; height:100%; background:var(--slate); border-radius:2px}
+
+  /* Cycle rail */
+  .rail-card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:22px 20px 18px}
+  .rail-top{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:4px}
+  .rail-phase{font-family:"Fraunces",serif; font-size:23px; font-weight:500; letter-spacing:-.01em}
+  .rail-sub{font-size:13.5px; color:var(--body); margin-bottom:22px; line-height:1.45}
+  .rail{position:relative; height:60px; margin:0 6px}
+  .rail-line{position:absolute; left:0; right:0; top:20px; height:2px; background:linear-gradient(90deg,var(--green-bg),var(--line),var(--amber-bg))}
+  .tick{position:absolute; top:14px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px}
+  .tick .d{width:2px; height:14px; background:var(--soft); border-radius:2px}
+  .tick .lab{font-size:10.5px; color:var(--soft); white-space:nowrap; text-align:center; line-height:1.25}
+  .tick .lab b{display:block; color:var(--body); font-weight:600; font-variant-numeric:tabular-nums}
+  .tick.me{top:6px}
+  .tick.me .d{height:26px; width:3px; background:var(--accent)}
+  .tick.me .lab{color:var(--accent); font-weight:600}
+  .tick.me .lab b{color:var(--accent)}
+
+  /* Feeds */
+  details.block{background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden}
+  details.block>summary{
+    list-style:none; cursor:pointer; padding:15px 18px; font-size:13px; font-weight:600;
+    color:var(--body); display:flex; align-items:center; justify-content:space-between; -webkit-tap-highlight-color:transparent;
+  }
+  details.block>summary::-webkit-details-marker{display:none}
+  details.block>summary .caret{color:var(--soft); transition:transform .2s; font-size:11px}
+  details.block[open]>summary .caret{transform:rotate(90deg)}
+  .feed{padding:2px 18px 16px}
+  .feed .item{display:flex; gap:12px; padding:9px 0; border-top:1px solid var(--line2); font-size:13px; line-height:1.45}
+  .feed .item:first-child{border-top:none}
+  .feed time{color:var(--soft); flex:none; font-variant-numeric:tabular-nums; font-size:12px; padding-top:1px; width:74px}
+  .feed .empty{color:var(--soft); font-size:13px; padding:8px 0}
+
+  .foot{margin-top:34px; text-align:center; font-size:11.5px; color:var(--soft); line-height:1.7}
+  .foot a{color:var(--slate); text-decoration:none; border-bottom:1px solid var(--line)}
+  .foot .sources{margin-top:6px; font-size:10.5px}
+  .foot .sources b{color:var(--body); font-weight:500}
+
+  .skeleton{color:var(--soft); font-family:"Inter"; font-size:15px; padding:40px 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mast">
+    <h1><span class="dot"></span>BTC Watch</h1>
+    <div class="stamp" id="stamp">updating…</div>
+  </div>
+  <div class="price-now" id="priceNow"></div>
+  <div id="app"><div class="skeleton">Loading the latest read…</div></div>
+  <div class="foot">
+    <span id="foot-note"></span><br>
+    <span class="sources" id="sources"></span>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => n==null ? "–" : "$"+Math.round(n).toLocaleString();
+const fmt = n => n==null ? "–" : Math.round(n).toLocaleString();
+const sgn = n => n>0 ? "+" : "";
+const dirClass = n => n==null ? "" : n>0 ? "up" : n<0 ? "down" : "";
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+// Build one expandable metric row
+function row(title, valHTML, hint, detailHTML){
+  return `<div class="row">
+    <div class="row-head" onclick="this.parentNode.classList.toggle('open'); const b=this.parentNode.querySelector('.row-body'); b.style.maxHeight=this.parentNode.classList.contains('open')?b.querySelector('.inner').offsetHeight+'px':'0'">
+      <div class="row-main">
+        <div class="row-title">${esc(title)}</div>
+        <div class="row-hint">${hint}</div>
+      </div>
+      <div class="row-val ${valHTML.cls||''}">${valHTML.big}${valHTML.unit?`<span class="u">${esc(valHTML.unit)}</span>`:''}</div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+    <div class="row-body"><div class="inner">${detailHTML}</div></div>
+  </div>`;
+}
+
+async function load(){
+  let d;
+  try{
+    const r = await fetch("data.json?t="+Math.floor(Date.now()/60000));
+    d = await r.json();
+  }catch(e){
+    $("app").innerHTML = `<div class="skeleton">Couldn't load the data yet. If this is a brand-new setup, run the refresh once from the repo's Actions tab, then reload.</div>`;
+    return;
+  }
+
+  // ---- masthead / price line
+  const when = new Date(d.updated);
+  $("stamp").innerHTML = "Updated "+when.toLocaleString(undefined,{weekday:"short",hour:"numeric",minute:"2-digit"})+"<br>refreshes every 2h";
+  const chg = d.chg7d_pct;
+  $("priceNow").innerHTML = `Bitcoin <b>${money(d.price)}</b>` +
+    (chg!=null ? ` · <span class="${chg>0?'chg-up':'chg-down'}">${sgn(chg)}${chg}%</span> past 7 days` : "");
+
+  // ============ 1. ACT NOW ============
+  const words = {green:"Opportunity", amber:"Caution", red:"Step back", grey:"Hold steady"};
+  const headline = {
+    green:"A buying window is open.",
+    amber:"Conditions are stretched.",
+    red:"Protect capital right now.",
+    grey:"Nothing to act on today."
+  };
+  let html = `<section>
+    <div class="sec-label"><span class="n">1</span> Should I act</div>
+    <div class="verdict ${d.light}">
+      <span class="tag"><span class="pulse"></span>${words[d.light]||"Watching"}</span>
+      <h2>${headline[d.light]||"Watching the market."}</h2>
+      <p>${esc(d.light_reason||"")}</p>
+    </div>
+  </section>`;
+
+  // ============ 2. THESIS ============
+  const sei = d.sei;
+  const hist = d.sei_history||[];
+  const back = hist.length>90 ? hist[hist.length-91].sei : (hist[0]||{}).sei;
+  const slope = back!=null ? sei-back : 0;
+  const seiVerdict = sei>=60 ? "Bitcoin keeps getting more woven into the financial system."
+    : sei>=45 ? "Steady progress, with a few big doors still shut."
+    : "Too many doors still closed; treat this as a trading asset for now.";
+  const slopeTxt = slope>0 ? `up ${slope} points` : slope<0 ? `down ${Math.abs(slope)} points` : "unchanged";
+  const pillars = (d.sei_pillars||[]).map(p =>
+    `<div class="pillar"><span class="pl">${esc(p.label)}</span><span class="pv">${p.score}</span><span class="pb"><i style="width:${p.score}%"></i></span></div>`
+  ).join("");
+
+  html += `<section>
+    <div class="sec-label"><span class="n">2</span> Is the thesis on track</div>
+    <div class="rows">`;
+
+  html += row("Adoption score",
+    {big: sei==null?"–":sei, unit:"of 100"},
+    `${seiVerdict}`,
+    `<div class="lead">${sei} out of 100, ${slopeTxt} over three months.</div>
+     This score tracks how firmly Bitcoin is becoming financial infrastructure: the rules, the banks and platforms that can hold it, and whether coins are moving into long-term hands. Higher is stronger. It moves slowly by design, so a rising trend matters more than the exact number.
+     ${pillars ? `<div class="pillars">${pillars}</div>` : ""}`);
+
+  // realized price (value floor) — only if present
+  if (d.realized_price!=null){
+    const above = d.price!=null ? Math.round((d.price/d.realized_price-1)*100) : null;
+    html += row("Average cost basis",
+      {big: money(d.realized_price)},
+      above!=null ? `The typical holder is ${above>=0?"up":"down"} about ${Math.abs(above)}% on their coins.` : "What the average coin last moved at.",
+      `<div class="lead">${money(d.realized_price)} is roughly what the average bitcoin last changed hands for.</div>
+       Think of it as the market's break-even line. When price trades below it, most holders are underwater and history says that's a rare, deep-value zone. Well above it (like now) means the average holder is sitting in profit.`);
+  }
+
+  // MVRV (how stretched vs cost) — only if present
+  if (d.mvrv!=null){
+    const mv = d.mvrv;
+    const mvState = mv<1 ? "Deep value: price is below the average holder's cost." :
+      mv<2 ? "Reasonable: profit exists but the market isn't overheated." :
+      mv<3.5 ? "Warm: healthy profits, watch for froth." : "Hot: the kind of profit levels that have marked past tops.";
+    html += row("Profit stretch",
+      {big: mv.toFixed(2), unit:"× cost"},
+      mvState,
+      `<div class="lead">Price is ${mv.toFixed(2)}× the average holder's cost basis.</div>
+       This is the single best gauge of how expensive Bitcoin is versus what people actually paid. Under 1 is bargain territory, 1–2 is normal, and past roughly 3.5 the market has historically been overheated and near a top. It's a slow cycle gauge, not a day-trading signal.`);
+  }
+
+  html += `</div></section>`;
+
+  // ============ 3. CYCLE ============
+  const phaseText = {
+    "Deep value":"Price sits below what the average holder paid. Historically the best long-term entries appear here.",
+    "Contraction":"Below the long-term trend with money flowing out. A patience phase; watch for a flush and a turn.",
+    "Accumulation":"Below the long-term trend but buyers are stepping back in. The quiet building phase.",
+    "Expansion":"Above the long-term trend with support underneath. The uptrend is intact.",
+    "Euphoria":"Stretched on every gauge at once. The phase where you take profit into strength.",
+    "Unknown":"Not enough live data to place the cycle right now."
+  };
+  // rail levels
+  const levels = [
+    ["200-week","wma200"], ["avg cost","realized_price"], ["200-day","dma200"], ["now","price"]
+  ].map(([lab,key]) => [lab, d[key]]).filter(x => x[1]!=null);
+  let railHTML = "";
+  if (levels.length>=2){
+    const vals = levels.map(x=>x[1]);
+    const lo = Math.min(...vals)*0.93, hi = Math.max(...vals)*1.07;
+    railHTML = `<div class="rail"><div class="rail-line"></div>` +
+      levels.map(([lab,v]) => {
+        const left = ((v-lo)/(hi-lo)*100).toFixed(1);
+        const me = lab==="now" ? " me" : "";
+        return `<div class="tick${me}" style="left:${left}%"><div class="d"></div><div class="lab">${lab}<b>${money(v)}</b></div></div>`;
+      }).join("") + `</div>`;
+  }
+  const floorNote = d.weeks_below_200wma>0
+    ? `${d.weeks_below_200wma} weekly close${d.weeks_below_200wma>1?"s":""} below the 200-week line. Two in a row trips the safety switch.`
+    : "Holding above the 200-week line, the structural floor of past cycles.";
+
+  html += `<section>
+    <div class="sec-label"><span class="n">3</span> Where we are in the cycle</div>
+    <div class="rail-card">
+      <div class="rail-top"><div class="rail-phase">${esc(d.regime||"–")}</div></div>
+      <div class="rail-sub">${phaseText[d.regime]||""}</div>
+      ${railHTML}
+    </div>
+  </section>`;
+
+  // ============ pressure gauges (optional, only what's live) ============
+  let gauges = "";
+  // funding
+  if (d.funding_3d_avg_pct!=null){
+    const f = d.funding_3d_avg_pct;
+    const fState = f>0.05 ? "Traders are crowded long; leverage is building." :
+      f<0 ? "Traders lean short; a squeeze higher can start from here." : "Calm and balanced.";
+    gauges += row("Leverage temperature",
+      {big:(f>0?"+":"")+f+"%", unit:"funding", cls:dirClass(f>0.05?1:f<0?-1:0)},
+      fState,
+      `<div class="lead">Perp funding is averaging ${(f>0?"+":"")+f}% over three days.</div>
+       When this runs hot and positive, too many traders are betting on higher prices with borrowed money, which often precedes a shakeout. Negative means the crowd is bearish, which can fuel a rally. Near zero is healthy.`);
+  }
+  // stablecoins
+  if (d.stable_chg30d_pct!=null){
+    const s = d.stable_chg30d_pct;
+    const sState = s>1 ? "Fresh buying power is arriving on the sidelines." :
+      s<-1 ? "Money is leaving the crypto rails." : "Roughly flat.";
+    gauges += row("Dry powder",
+      {big:(s>0?"+":"")+s+"%", unit:"stablecoins 30d", cls:dirClass(s)},
+      sState,
+      `<div class="lead">The pool of stablecoins grew ${(s>0?"+":"")+s}% in 30 days.</div>
+       Stablecoins are cash waiting on the sidelines inside crypto. A growing pool means more potential buying power ready to deploy; a shrinking one means capital is heading for the exits.`);
+  }
+  // fear & greed
+  if (d.fear_greed!=null){
+    const g = d.fear_greed;
+    const gState = g<=25 ? "Fear is high, which has marked past bottoms." :
+      g>=75 ? "Greed is high, which has marked past tops." : "Sentiment is middling.";
+    gauges += row("Crowd mood",
+      {big:g, unit:"of 100"},
+      gState,
+      `<div class="lead">The Fear & Greed index reads ${g} out of 100.</div>
+       It blends volatility, momentum and social chatter into one number. Extreme fear (low) is often when the best entries appear; extreme greed (high) is often when it pays to take some off the table. It's a contrarian gauge.`);
+  }
+  if (gauges){
+    html += `<section>
+      <div class="sec-label"><span class="n">+</span> Pressure gauges</div>
+      <div class="rows">${gauges}</div>
+    </section>`;
+  }
+
+  // ============ feeds ============
+  const events = (d.events||[]).map(e => `<div class="item"><time>${esc(e.date)}</time><span>${esc(e.note)}</span></div>`).join("");
+  html += `<details class="block"><summary>What changed lately<span class="caret">›</span></summary>
+    <div class="feed">${events || `<div class="empty">No milestones logged yet.</div>`}</div></details>`;
+
+  let alerts = [];
+  try{ alerts = await (await fetch("alerts.json?t="+Math.floor(Date.now()/60000))).json(); }catch(e){}
+  const al = (alerts||[]).slice(0,6).map(a => `<div class="item"><time>${esc(a.ts.slice(0,10))}</time><span>${esc(a.text)}</span></div>`).join("");
+  html += `<details class="block"><summary>Recent alerts<span class="caret">›</span></summary>
+    <div class="feed">${al || `<div class="empty">No alerts yet. You'll see buy, trim and safety-switch signals here as they fire.</div>`}</div></details>`;
+
+  $("app").innerHTML = html;
+
+  // footer
+  $("foot-note").textContent = "A calm daily read on Bitcoin. Not financial advice.";
+  const st = d.sources||{};
+  const live = Object.entries(st).filter(([k,v])=>v==="ok").length;
+  const total = Object.keys(st).length;
+  $("sources").innerHTML = `<b>${live}/${total}</b> data sources live · <a href="data.json">raw data</a>`;
+}
+load();
+</script>
+</body>
+</html>
