@@ -1,11 +1,11 @@
 {
- "price": 77242,
+ "price": 77274,
  "dma50": 70897,
  "dma200": 70092,
  "wma200": 65068,
- "rsi14": 46.2,
+ "rsi14": 46.3,
  "chg7d_pct": -3.2,
- "chg30d_pct": 21.8,
+ "chg30d_pct": 21.9,
  "price_vs_200dma_pct": 10.2,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
@@ -24,9 +24,9 @@
  "ibit_history": [],
  "stable_supply_busd": 310.2,
  "stable_chg30d_pct": 1.32,
- "funding_3d_avg_pct": 0.0099,
- "funding_venue": "bitmex",
- "fear_greed": 63,
+ "funding_3d_avg_pct": 0.0063,
+ "funding_venue": "okx",
+ "fear_greed": 61,
  "sei": 59,
  "sei_pillars": [
   {
@@ -81,6 +81,10 @@
  "sei_history": [
   {
    "date": "2026-09-12",
+   "sei": 59
+  },
+  {
+   "date": "2026-09-13",
    "sei": 59
   }
  ],
@@ -146,7 +150,8 @@
   "coinmetrics": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapRealUSD%2CCapMrktCurUSD%2CSplyAct1yr%2CSplyCur&frequency=1d&page_size=40&paging_from=end",
   "etf_sosovalue": "405 Client Error: Method Not Allowed for url: https://api.sosovalue.xyz/openapi/v2/etf/historicalInflowChart?type=us-btc-spot",
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
-  "ibit": "BTC row not found in holdings CSV"
+  "ibit": "BTC row not found in holdings CSV",
+  "funding_bitmex": "503 Server Error: Service Unavailable for url: https://www.bitmex.com/api/v1/funding?symbol=XBTUSD&count=9&reverse=true"
  },
- "updated": "2026-09-12T23:26+00:00"
+ "updated": "2026-09-13T00:00+00:00"
 }
