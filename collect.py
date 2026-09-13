@@ -213,7 +213,7 @@ def coinmetrics():
 # ---------------------------------------------------------------- on-chain fallback (bitcoin-data.com, no key)
 
 def bitcoin_data_fallback(cur):
-    """Fill realized_price / mvrv if Coin Metrics did not. Best effort."""
+    """Fill realized_price / mvrv / long-term-holder share if Coin Metrics did not. Best effort."""
     def last(path, *names):
         j = get("https://bitcoin-data.com/v1/" + path + "/last").json()
         for n in names:
@@ -233,7 +233,9 @@ def bitcoin_data_fallback(cur):
         if out.get(key) is None:
             try:
                 v = last(path, *names)
-                out[key] = round(v, 2 if key == "mvrv" else 0)
+                if key == "supply_untouched_1y_pct" and v > 100:
+                    v = v / 19.9e6 * 100 if v > 1e6 else v
+                out[key] = round(v, 2 if key == "mvrv" else 1)
                 STATUS["bitcoin_data"] = "ok"
             except Exception as e:
                 fail("bitcoin_data_" + path, e)
@@ -466,7 +468,8 @@ def sei_score():
     for pid, p in CAT["pillars"].items():
         items = p["items"].values()
         pct = statistics.mean(i["maturity"] for i in items) / 3 * 100
-        pillars.append({"id": pid, "label": p["label"], "score": round(pct), "weight": p["weight"]})
+        pillars.append({"id": pid, "label": p["label"], "score": round(pct), "weight": p["weight"],
+                        "items": [{"label": i["label"], "maturity": i["maturity"]} for i in p["items"].values()]})
         acc += pct * p["weight"]
         total_w += p["weight"]
     return round(acc / total_w), pillars
