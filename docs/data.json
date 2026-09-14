@@ -1,12 +1,12 @@
 {
- "price": 77321,
- "dma50": 71157,
- "dma200": 70138,
- "wma200": 65165,
- "rsi14": 48.6,
- "chg7d_pct": -3.7,
- "chg30d_pct": 22.9,
- "price_vs_200dma_pct": 10.2,
+ "price": 76924,
+ "dma50": 71377,
+ "dma200": 70183,
+ "wma200": 65391,
+ "rsi14": 43.5,
+ "chg7d_pct": -2.7,
+ "chg30d_pct": 22.0,
+ "price_vs_200dma_pct": 9.6,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -23,59 +23,223 @@
  "ibit_chg7d_btc": null,
  "ibit_history": [],
  "stable_supply_busd": 310.2,
- "stable_chg30d_pct": 1.35,
+ "stable_chg30d_pct": 1.34,
  "funding_3d_avg_pct": 0.0099,
  "funding_venue": "bitmex",
- "fear_greed": 61,
+ "fear_greed": 57,
  "sei": 59,
  "sei_pillars": [
   {
    "id": "plumbing",
    "label": "Rules and accounting",
    "score": 63,
-   "weight": 20
+   "weight": 20,
+   "items": [
+    {
+     "label": "Fair-value accounting (FASB)",
+     "maturity": 3
+    },
+    {
+     "label": "Bank custody allowed (SAB 122)",
+     "maturity": 3
+    },
+    {
+     "label": "Basel bank capital treatment",
+     "maturity": 1
+    },
+    {
+     "label": "Stablecoin law (GENIUS)",
+     "maturity": 3
+    },
+    {
+     "label": "Market structure law",
+     "maturity": 1
+    },
+    {
+     "label": "US strategic reserve acquiring",
+     "maturity": 1
+    },
+    {
+     "label": "401(k) menu access",
+     "maturity": 2
+    },
+    {
+     "label": "Crypto counted in mortgage underwriting",
+     "maturity": 2
+    },
+    {
+     "label": "Insurer statutory capital treatment",
+     "maturity": 1
+    }
+   ]
   },
   {
    "id": "distribution",
    "label": "Who is allowed to sell it",
    "score": 52,
-   "weight": 20
+   "weight": 20,
+   "items": [
+    {
+     "label": "Morgan Stanley advisors",
+     "maturity": 2
+    },
+    {
+     "label": "Merrill / BofA advisors",
+     "maturity": 1
+    },
+    {
+     "label": "Wells Fargo advisors",
+     "maturity": 1
+    },
+    {
+     "label": "UBS advisors",
+     "maturity": 1
+    },
+    {
+     "label": "Vanguard platform",
+     "maturity": 2
+    },
+    {
+     "label": "Schwab spot trading",
+     "maturity": 2
+    },
+    {
+     "label": "LPL and Edward Jones",
+     "maturity": 1
+    },
+    {
+     "label": "Model portfolio inclusion (BlackRock etc)",
+     "maturity": 2
+    },
+    {
+     "label": "JPM / Goldman / Citi private wealth",
+     "maturity": 2
+    }
+   ]
   },
   {
    "id": "benchmarks",
    "label": "Index and benchmark inclusion",
    "score": 44,
-   "weight": 10
+   "weight": 10,
+   "items": [
+    {
+     "label": "Strategy in S&P 500",
+     "maturity": 1
+    },
+    {
+     "label": "MSCI treatment of treasury companies",
+     "maturity": 1
+    },
+    {
+     "label": "Major allocators publishing nonzero BTC weight",
+     "maturity": 2
+    }
+   ]
   },
   {
    "id": "supply_sink",
    "label": "Coins leaving the market",
    "score": 58,
-   "weight": 15
+   "weight": 15,
+   "items": [
+    {
+     "label": "ETF share of supply growing",
+     "maturity": 2
+    },
+    {
+     "label": "Corporate treasuries net buying",
+     "maturity": 2
+    },
+    {
+     "label": "Governments holding rather than selling",
+     "maturity": 2
+    },
+    {
+     "label": "Mt. Gox overhang cleared",
+     "maturity": 1
+    }
+   ]
   },
   {
    "id": "collateral",
    "label": "Borrowing against it",
    "score": 67,
-   "weight": 10
+   "weight": 10,
+   "items": [
+    {
+     "label": "Bank loans against BTC or ETF shares",
+     "maturity": 2
+    },
+    {
+     "label": "Prime brokers accept ETF shares as margin",
+     "maturity": 2
+    },
+    {
+     "label": "CME margins normalizing",
+     "maturity": 2
+    }
+   ]
   },
   {
    "id": "treasuries",
    "label": "Corporate and sovereign treasuries",
    "score": 50,
-   "weight": 10
+   "weight": 10,
+   "items": [
+    {
+     "label": "Strategy premium to NAV healthy",
+     "maturity": 2
+    },
+    {
+     "label": "Treasury-company sector above NAV",
+     "maturity": 1
+    },
+    {
+     "label": "Any G20 sovereign buying openly",
+     "maturity": 1
+    },
+    {
+     "label": "US states enacting reserves",
+     "maturity": 2
+    }
+   ]
   },
   {
    "id": "network",
    "label": "Network health",
    "score": 78,
-   "weight": 10
+   "weight": 10,
+   "items": [
+    {
+     "label": "Hashrate at or near highs",
+     "maturity": 3
+    },
+    {
+     "label": "Post-quantum migration plan",
+     "maturity": 1
+    },
+    {
+     "label": "No contentious fork risk",
+     "maturity": 3
+    }
+   ]
   },
   {
    "id": "culture",
    "label": "Everyday embedding",
    "score": 67,
-   "weight": 5
+   "weight": 5,
+   "items": [
+    {
+     "label": "Banks hiring for digital assets",
+     "maturity": 2
+    },
+    {
+     "label": "Political support stable",
+     "maturity": 2
+    }
+   ]
   }
  ],
  "sei_history": [
@@ -85,6 +249,10 @@
   },
   {
    "date": "2026-09-13",
+   "sei": 59
+  },
+  {
+   "date": "2026-09-14",
    "sei": 59
   }
  ],
@@ -153,5 +321,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-13T20:50+00:00"
+ "updated": "2026-09-14T00:12+00:00"
 }
