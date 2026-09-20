@@ -1,12 +1,12 @@
 {
- "price": 80314,
- "dma50": 73181,
- "dma200": 70500,
- "wma200": 65483,
- "rsi14": 50.0,
- "chg7d_pct": 4.6,
- "chg30d_pct": 2.5,
- "price_vs_200dma_pct": 13.9,
+ "price": 80839,
+ "dma50": 73192,
+ "dma200": 70502,
+ "wma200": 65485,
+ "rsi14": 51.7,
+ "chg7d_pct": 5.3,
+ "chg30d_pct": 3.2,
+ "price_vs_200dma_pct": 14.7,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -22,8 +22,8 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 309.9,
- "stable_chg30d_pct": 0.66,
+ "stable_supply_busd": 310.0,
+ "stable_chg30d_pct": 0.67,
  "funding_3d_avg_pct": 0.01,
  "funding_venue": "bitmex",
  "fear_greed": 71,
@@ -345,5 +345,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-20T11:25+00:00"
+ "updated": "2026-09-20T16:07+00:00"
 }
