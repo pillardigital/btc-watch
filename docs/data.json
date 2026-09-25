@@ -1,12 +1,12 @@
 {
- "price": 83820,
- "dma50": 75308,
+ "price": 83959,
+ "dma50": 75311,
  "dma200": 70925,
- "wma200": 65731,
- "rsi14": 68.1,
- "chg7d_pct": 3.6,
- "chg30d_pct": 6.2,
- "price_vs_200dma_pct": 18.2,
+ "wma200": 65732,
+ "rsi14": 68.6,
+ "chg7d_pct": 3.7,
+ "chg30d_pct": 6.3,
+ "price_vs_200dma_pct": 18.4,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -365,5 +365,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-25T13:48+00:00"
+ "updated": "2026-09-25T18:37+00:00"
 }
