@@ -23,7 +23,7 @@
  "ibit_chg7d_btc": null,
  "ibit_history": [],
  "stable_supply_busd": 311.3,
- "stable_chg30d_pct": 1.33,
+ "stable_chg30d_pct": 1.32,
  "funding_3d_avg_pct": 0.01,
  "funding_venue": "bitmex",
  "fear_greed": 73,
@@ -382,5 +382,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-29T16:31+00:00"
+ "updated": "2026-09-29T22:16+00:00"
 }
