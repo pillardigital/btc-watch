@@ -1,12 +1,12 @@
 {
- "price": 83001,
- "dma50": 76848,
- "dma200": 71194,
- "wma200": 65954,
- "rsi14": 74.3,
- "chg7d_pct": -3.7,
- "chg30d_pct": 6.8,
- "price_vs_200dma_pct": 16.6,
+ "price": 83517,
+ "dma50": 76466,
+ "dma200": 71134,
+ "wma200": 66088,
+ "rsi14": 65.2,
+ "chg7d_pct": -3.5,
+ "chg30d_pct": 6.7,
+ "price_vs_200dma_pct": 17.4,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -23,7 +23,7 @@
  "ibit_chg7d_btc": null,
  "ibit_history": [],
  "stable_supply_busd": 311.3,
- "stable_chg30d_pct": 1.33,
+ "stable_chg30d_pct": 1.32,
  "funding_3d_avg_pct": 0.01,
  "funding_venue": "bitmex",
  "fear_greed": 73,
@@ -374,6 +374,7 @@
   "fng": "ok"
  },
  "errors": {
+  "coingecko_live": "403 Client Error: Forbidden for url: https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
   "coinmetrics_batch": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceRealizedUSD%2CCapMVRVCur%2CSplyAct1yr%2CSplyCur%2CCapRealUSD%2CCapMrktCurUSD&frequency=1d&page_size=40&paging_from=end :: {\"error\":{\"type\":\"forbidden\",\"message\":\"Requested me",
   "coinmetrics": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapRealUSD%2CCapMrktCurUSD%2CSplyAct1yr%2CSplyCur&frequency=1d&page_size=40&paging_from=end",
   "cryptoquant": "403 Client Error: Forbidden for url: https://api.cryptoquant.com/v1/btc/exchange-flows/reserve?exchange=all_exchange&window=day&limit=31",
@@ -381,5 +382,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-29T01:58+00:00"
+ "updated": "2026-09-29T08:31+00:00"
 }
