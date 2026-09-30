@@ -1,12 +1,12 @@
 {
- "price": 83517,
- "dma50": 76466,
- "dma200": 71134,
- "wma200": 66088,
- "rsi14": 65.2,
- "chg7d_pct": -3.5,
- "chg30d_pct": 6.7,
- "price_vs_200dma_pct": 17.4,
+ "price": 83675,
+ "dma50": 76861,
+ "dma200": 71197,
+ "wma200": 65957,
+ "rsi14": 77.1,
+ "chg7d_pct": -2.9,
+ "chg30d_pct": 7.7,
+ "price_vs_200dma_pct": 17.5,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -22,11 +22,11 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 311.3,
- "stable_chg30d_pct": 1.32,
+ "stable_supply_busd": 310.8,
+ "stable_chg30d_pct": 1.11,
  "funding_3d_avg_pct": 0.01,
  "funding_venue": "bitmex",
- "fear_greed": 73,
+ "fear_greed": 71,
  "sei": 59,
  "sei_pillars": [
   {
@@ -314,6 +314,10 @@
   {
    "date": "2026-09-29",
    "sei": 59
+  },
+  {
+   "date": "2026-09-30",
+   "sei": 59
   }
  ],
  "regime": "Expansion",
@@ -382,5 +386,5 @@
   "etf_farside": "403 Client Error: Forbidden for url: https://farside.co.uk/btc/",
   "ibit": "BTC row not found in holdings CSV"
  },
- "updated": "2026-09-29T22:16+00:00"
+ "updated": "2026-09-30T01:20+00:00"
 }
