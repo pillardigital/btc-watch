@@ -1,12 +1,12 @@
 {
- "price": 78271,
- "dma50": 81955,
- "dma200": 73164,
- "wma200": 67856,
- "rsi14": 28.5,
- "chg7d_pct": -3.7,
- "chg30d_pct": -8.8,
- "price_vs_200dma_pct": 7.0,
+ "price": 80112,
+ "dma50": 81992,
+ "dma200": 73173,
+ "wma200": 67866,
+ "rsi14": 36.9,
+ "chg7d_pct": -1.4,
+ "chg30d_pct": -6.7,
+ "price_vs_200dma_pct": 9.5,
  "weeks_below_200wma": 0,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -22,8 +22,8 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 295.7,
- "stable_chg30d_pct": -3.77,
+ "stable_supply_busd": 295.1,
+ "stable_chg30d_pct": -3.96,
  "funding_3d_avg_pct": 0.0097,
  "funding_venue": "okx",
  "fear_greed": 34,
@@ -526,5 +526,5 @@
   "ibit": "BTC row not found in holdings CSV",
   "funding_bitmex": "403 Client Error: Forbidden for url: https://www.bitmex.com/api/v1/funding?symbol=XBTUSD&count=9&reverse=true"
  },
- "updated": "2026-11-04T12:08+00:00"
+ "updated": "2026-11-04T19:45+00:00"
 }
