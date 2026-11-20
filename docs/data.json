@@ -1,12 +1,12 @@
 {
- "price": 61614,
- "dma50": 77675,
- "dma200": 72538,
- "wma200": 68075,
- "rsi14": 9.7,
- "chg7d_pct": -9.5,
- "chg30d_pct": -26.8,
- "price_vs_200dma_pct": -15.1,
+ "price": 58946,
+ "dma50": 77622,
+ "dma200": 72525,
+ "wma200": 68061,
+ "rsi14": 8.4,
+ "chg7d_pct": -13.4,
+ "chg30d_pct": -30.0,
+ "price_vs_200dma_pct": -18.7,
  "weeks_below_200wma": 1,
  "realized_price": 52759.5,
  "mvrv": 1.51,
@@ -22,9 +22,9 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 283.7,
- "stable_chg30d_pct": -5.88,
- "funding_3d_avg_pct": -0.0002,
+ "stable_supply_busd": 283.6,
+ "stable_chg30d_pct": -5.92,
+ "funding_3d_avg_pct": 0.0003,
  "funding_venue": "okx",
  "fear_greed": 12,
  "sei": 59,
@@ -525,8 +525,8 @@
   }
  ],
  "regime": "Contraction",
- "light": "green",
- "light_reason": "Structural add window: thesis, price below 200-day, funding flat or negative, fear",
+ "light": "grey",
+ "light_reason": "Nothing to do. Watching.",
  "events": [
   {
    "date": "2026-09-12",
@@ -571,13 +571,7 @@
  ],
  "issuance_btc_per_day": 450,
  "etf_note": "",
- "alerts_sent": [
-  {
-   "ts": "2026-11-20T12:54:12.536110+00:00",
-   "kind": "structural_add",
-   "text": "Structural add window. Thesis 59/100, price -15.1% vs 200-day, funding -0.0002%, fear 12, ETF streak 0. Long-dated calls. Invalidation: weekly close below $68,075."
-  }
- ],
+ "alerts_sent": [],
  "sources": {
   "price": "ok",
   "coinmetrics": "missing",
@@ -596,5 +590,5 @@
   "ibit": "BTC row not found in holdings CSV",
   "funding_bitmex": "403 Client Error: Forbidden for url: https://www.bitmex.com/api/v1/funding?symbol=XBTUSD&count=9&reverse=true"
  },
- "updated": "2026-11-20T12:54+00:00"
+ "updated": "2026-11-20T21:49+00:00"
 }
