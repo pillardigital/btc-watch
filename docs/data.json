@@ -1,13 +1,13 @@
 {
- "price": 58946,
- "dma50": 77622,
- "dma200": 72525,
- "wma200": 68061,
- "rsi14": 8.4,
- "chg7d_pct": -13.4,
- "chg30d_pct": -30.0,
- "price_vs_200dma_pct": -18.7,
- "weeks_below_200wma": 1,
+ "price": 58208,
+ "dma50": 77094,
+ "dma200": 72411,
+ "wma200": 68030,
+ "rsi14": 8.2,
+ "chg7d_pct": -8.8,
+ "chg30d_pct": -28.4,
+ "price_vs_200dma_pct": -19.6,
+ "weeks_below_200wma": 2,
  "realized_price": 52759.5,
  "mvrv": 1.51,
  "supply_untouched_1y_pct": null,
@@ -22,9 +22,9 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 283.6,
- "stable_chg30d_pct": -5.92,
- "funding_3d_avg_pct": 0.0003,
+ "stable_supply_busd": 282.5,
+ "stable_chg30d_pct": -6.31,
+ "funding_3d_avg_pct": -0.0002,
  "funding_venue": "okx",
  "fear_greed": 12,
  "sei": 59,
@@ -522,11 +522,15 @@
   {
    "date": "2026-11-20",
    "sei": 59
+  },
+  {
+   "date": "2026-11-21",
+   "sei": 59
   }
  ],
  "regime": "Contraction",
- "light": "grey",
- "light_reason": "Nothing to do. Watching.",
+ "light": "green",
+ "light_reason": "Structural add window: thesis, price below 200-day, funding flat or negative, fear",
  "events": [
   {
    "date": "2026-09-12",
@@ -590,5 +594,5 @@
   "ibit": "BTC row not found in holdings CSV",
   "funding_bitmex": "403 Client Error: Forbidden for url: https://www.bitmex.com/api/v1/funding?symbol=XBTUSD&count=9&reverse=true"
  },
- "updated": "2026-11-20T21:49+00:00"
+ "updated": "2026-11-21T03:13+00:00"
 }
