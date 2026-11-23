@@ -1,13 +1,13 @@
 {
- "price": 61151,
- "dma50": 76689,
- "dma200": 72334,
- "wma200": null,
- "rsi14": 19.5,
- "chg7d_pct": -6.4,
- "chg30d_pct": -24.6,
- "price_vs_200dma_pct": -15.5,
- "weeks_below_200wma": 0,
+ "price": 61450,
+ "dma50": 76157,
+ "dma200": 72226,
+ "wma200": 68400,
+ "rsi14": 18.7,
+ "chg7d_pct": -5.4,
+ "chg30d_pct": -23.9,
+ "price_vs_200dma_pct": -14.9,
+ "weeks_below_200wma": 2,
  "realized_price": 52759.5,
  "mvrv": 1.51,
  "supply_untouched_1y_pct": null,
@@ -22,9 +22,9 @@
  "ibit_chg1d_btc": null,
  "ibit_chg7d_btc": null,
  "ibit_history": [],
- "stable_supply_busd": 282.5,
- "stable_chg30d_pct": -6.19,
- "funding_3d_avg_pct": -0.0011,
+ "stable_supply_busd": 282.7,
+ "stable_chg30d_pct": -5.99,
+ "funding_3d_avg_pct": -0.0008,
  "funding_venue": "okx",
  "fear_greed": 11,
  "sei": 59,
@@ -530,6 +530,10 @@
   {
    "date": "2026-11-22",
    "sei": 59
+  },
+  {
+   "date": "2026-11-23",
+   "sei": 59
   }
  ],
  "regime": "Contraction",
@@ -590,7 +594,6 @@
   "fng": "ok"
  },
  "errors": {
-  "coinmetrics_price": "HTTPSConnectionPool(host='community-api.coinmetrics.io', port=443): Read timed out. (read timeout=25)",
   "coinmetrics_batch": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceRealizedUSD%2CCapMVRVCur%2CSplyAct1yr%2CSplyCur%2CCapRealUSD%2CCapMrktCurUSD&frequency=1d&page_size=40&paging_from=end :: {\"error\":{\"type\":\"forbidden\",\"message\":\"Requested me",
   "coinmetrics": "403 Client Error: Forbidden for url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapRealUSD%2CCapMrktCurUSD%2CSplyAct1yr%2CSplyCur&frequency=1d&page_size=40&paging_from=end",
   "cryptoquant": "403 Client Error: Forbidden for url: https://api.cryptoquant.com/v1/btc/exchange-flows/reserve?exchange=all_exchange&window=day&limit=31",
@@ -599,5 +602,5 @@
   "ibit": "BTC row not found in holdings CSV",
   "funding_bitmex": "403 Client Error: Forbidden for url: https://www.bitmex.com/api/v1/funding?symbol=XBTUSD&count=9&reverse=true"
  },
- "updated": "2026-11-22T23:36+00:00"
+ "updated": "2026-11-23T07:39+00:00"
 }
